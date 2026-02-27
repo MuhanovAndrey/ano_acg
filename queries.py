@@ -10,7 +10,7 @@ MONTH_NAMES = {
 def get_total_tourists(conn):
     """Возвращает общее количество туристов"""
     return conn.execute(
-        text("SELECT COALESCE(SUM(visitors_cnt), 0) FROM tourists")
+        text("SELECT SUM(visitors_cnt) FROM tourists")
     ).scalar()
 
 
@@ -39,8 +39,7 @@ def get_tourists_by_month(conn, start=None, end=None):
         {
             "month": f"{MONTH_NAMES[row[0].month]} {row[0].year}",
             "tourists": row[1]
-        }
-        for row in rows
+        } for row in rows
     ]
 
 
@@ -60,7 +59,12 @@ def get_geo_distribution(conn):
 def get_age_distribution(conn):
     """Возвращает количество туристов по возрасту"""
     rows = conn.execute(
-        text("SELECT age, SUM(visitors_cnt) as tourists FROM tourists GROUP BY age ORDER BY tourists DESC")
+        text("""
+            SELECT age, SUM(visitors_cnt) as tourists
+            FROM tourists
+            GROUP BY age
+            ORDER BY tourists DESC
+        """)
     ).fetchall()
     return [{"age": row[0], "tourists": row[1]} for row in rows]
 
@@ -77,8 +81,7 @@ def get_best_categories(conn):
     """Возвращает топ категорий по тратам и по количеству"""
     # По тратам
     spent_query = """
-            SELECT goal,
-                   SUM(spent) AS total_spent
+            SELECT goal, SUM(spent) AS total_spent
             FROM tourists
             GROUP BY goal
             ORDER BY total_spent DESC
@@ -91,8 +94,7 @@ def get_best_categories(conn):
 
     # По количеству
     count_tourists_query = """
-            SELECT goal,
-                   SUM(visitors_cnt) AS total_tourists
+            SELECT goal, SUM(visitors_cnt) AS total_tourists
             FROM tourists
             GROUP BY goal
             ORDER BY total_tourists DESC
