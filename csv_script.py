@@ -37,6 +37,7 @@ def clean_csv_and_load_to_db():
     df['income'] = df['income'].fillna('Не указан')
     df['spent'] = df['spent'].fillna(0)
 
+    # Если хотите посмотреть на подготовленные данные, закоментируйте код ниже
     df.to_sql(
         'tourists',
         engine,
@@ -64,4 +65,4 @@ def clean_csv_and_load_to_db():
 
 
 if __name__ == '__main__':
-    clean_csv_and_load_to_db()
+    final_csv_info()
